@@ -1,0 +1,15 @@
+.tool-info{margin-top:16px}
+.tool-info .ti-card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.04);margin-top:12px}
+.tool-info .ti-title{font-weight:700;font-size:1.05rem;margin-bottom:8px}
+.tool-info .ti-muted{color:#666;line-height:1.7}
+.tool-info .ti-list{margin:8px 0 0 0;padding-left:18px}
+.tool-info .ti-list li{margin:4px 0}
+.tool-info .ti-acc{border-top:1px solid #eee}
+.tool-info .ti-acc-item{border-bottom:1px solid #eee}
+.tool-info .ti-acc-btn{width:100%;text-align:left;padding:12px 0;font-weight:600}
+.tool-info .ti-acc-panel{display:none;padding:0 0 12px 0;color:#444;line-height:1.7}
+.tool-info .ti-acc-item.open .ti-acc-panel{display:block}
+.tool-info .ti-links{display:grid;gap:8px;grid-template-columns:1fr 1fr;margin-top:8px}
+.tool-info .ti-link{display:block;padding:12px;border-radius:10px;text-align:center;background:#f3f6ff}
+.tool-info .ti-ads{margin-top:12px;text-align:center}
+@media (max-width:420px){.tool-info .ti-links{grid-template-columns:1fr}}

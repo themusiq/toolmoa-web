@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>별자리 운세 | Toolmoa.kr</title>
+
+  <meta property="og:title" content="별자리 운세 | Toolmoa.kr">
+  <meta property="og:description" content="생일을 입력하면 별자리를 계산하고, 3요소 스프레드·시간대 운세·60초 루틴을 카드로 보여드립니다.">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/tool-info.css">
+  <script defer src="/assets/js/ui-kit.js"></script>
+  <style>#spread3 li+li{margin-top:2px}</style>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8660767493820036" crossorigin="anonymous"></script>
+
+</head>
+<body>
+  <script src="/assets/js/theme.js"></script>
+<script src="/assets/js/auto-wire.js"></script>
+<header>
+  <a href="/">🧰 Toolmoa.kr</a>
+</header>
+
+<main class="container">
+  <section class="hero" id="hero">
+    <div class="h-title">🔮 별자리 운세</div>
+    <p class="muted">생일을 입력하면 별자리를 계산하고, <b>3요소 스프레드</b>·<b>시간대 운세</b>·<b>60초 루틴</b>까지 카드 형식으로 보여드려요.</p>
+  </section>
+
+  <!-- 입력 -->
+  <section class="card" id="inputCard">
+    <div class="h-sub">🗓️ 생일 입력</div>
+    <div class="row" style="margin-top:8px">
+      <input id="birth" type="date" class="input" placeholder="연도-월-일">
+      <button id="checkBtn" class="btn-primary btn-banner" type="button">확인</button>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <div id="ad-coupang" style="margin-top:16px"></div>
+
+  <section id="resultCard" class="card hidden">
+    <div class="h-sub">📣 오늘의 운세</div>
+    <div class="result-highlight" id="resultSummary"></div>
+
+    <div id="miniCats" class="bullet" style="margin-top:8px"></div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="h-sub">🃏 오늘의 3요소 스프레드</div>
+      <ul id="spread3" class="bullet"></ul>
+      <div class="cta-row" style="margin-top:8px">
+        <button id="rerollLucky" class="btn btn-banner" type="button">행운 카드만 다시 뽑기</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="h-sub">⏰ 시간대 운세</div>
+      <ul id="dayPhases" class="bullet"></ul>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="h-sub">✅ 오늘의 60초 루틴</div>
+      <div id="oneMin" class="note"></div>
+    </div>
+
+    <div class="h-sub" style="margin-top:12px">🔍 더 알아보기</div>
+    <div class="link-banner-row" id="linkRow"></div>
+
+    <!-- 광고 (선택) -->
+    <div id="adsenseSlot" style="margin-top:10px; text-align:center;"></div>
+
+    <div class="cta-row" style="margin-top:16px">
+      <button id="btnShare" class="btn btn-banner" type="button" hidden>공유하기</button>
+      <button id="resetBtn" class="btn-primary btn-banner" type="button">다시 하기</button>
+      <a class="btn-primary btn-banner" href="/">홈으로</a>
+    </div>
+  </section>
+
+  <!-- 설명 강화 -->
+  <section id="tool-info"></section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-logo">🛠 Toolmoa.kr</div>
+    <p class="footer-copy">© <span id="cpyYear"></span> Toolmoa.kr. All rights reserved.</p>
+  </div>
+</footer>
+<script>document.getElementById('cpyYear').textContent = new Date().getFullYear();</script>
+
+<script type="module">
+  import { scrollTop, scrollToEl } from '/assets/js/toolmoa-common.js';
+  import { mountToolInfo } from '/assets/js/tool-info.js';
+
+  // ===== 엘리먼트 =====
+  const birthEl    = document.getElementById('birth');
+  const checkBtn   = document.getElementById('checkBtn');
+  const btnShare   = document.getElementById('btnShare');
+  const resetBtn   = document.getElementById('resetBtn');
+  const inputCard  = document.getElementById('inputCard');
+  const resultCard = document.getElementById('resultCard');
+  const resultSummary = document.getElementById('resultSummary');
+  const miniCats   = document.getElementById('miniCats');
+  const spread3    = document.getElementById('spread3');
+  const dayPhases  = document.getElementById('dayPhases');
+  const oneMin     = document.getElementById('oneMin');
+  const linkRow    = document.getElementById('linkRow');
+
+  // ===== 별자리 데이터 =====
+  const ZS = [
+    {name:'물병자리',start:'01-20',end:'02-18',trait:'독창성·네트워킹'},
+    {name:'물고기자리',start:'02-19',end:'03-20',trait:'공감·상상력'},
+    {name:'양자리',start:'03-21',end:'04-19',trait:'실행력·리더십'},
+    {name:'황소자리',start:'04-20',end:'05-20',trait:'꾸준함·안정'},
+    {name:'쌍둥이자리',start:'05-21',end:'06-21',trait:'소통·호기심'},
+    {name:'게자리',start:'06-22',end:'07-22',trait:'돌봄·집중'},
+    {name:'사자자리',start:'07-23',end:'08-22',trait:'자신감·표현'},
+    {name:'처녀자리',start:'08-23',end:'09-23',trait:'정돈·분석'},
+    {name:'천칭자리',start:'09-24',end:'10-22',trait:'균형·협업'},
+    {name:'전갈자리',start:'10-23',end:'11-22',trait:'몰입·통찰'},
+    {name:'사수자리',start:'11-23',end:'12-24',trait:'확장·탐험'},
+    {name:'염소자리',start:'12-25',end:'01-19',trait:'책임·실행'}
+  ];
+  const toMD = d => d.toISOString().slice(5,10);
+  const inRange = (md,s,e) => s>e ? (md>=s || md<=e) : (md>=s && md<=e);
+  const findZ = d => ZS.find(z => inRange(toMD(d), z.start, z.end)) || ZS[0];
+
+  // 유틸(시드 난수)
+  const seedFrom = str => Array.from(str).reduce((a,c)=>(a*131+c.charCodeAt(0))>>>0,7);
+  const prng = s => () => (s=(s*1664525+1013904223)>>>0)/2**32;
+  const pick = (rng, arr) => arr[Math.floor(rng()*arr.length)];
+
+  const LUCKY_COLORS=['블루','그린','옐로','퍼플','레드','화이트','블랙','오렌지','민트','네이비'];
+  const LUCKY_ITEMS=['텀블러','노트&펜','키링','머그컵','이어버드','책갈피','스티커','캔들','손세정제','손수건'];
+  const LUCKY_NUMS=[3,4,5,6,7,8,9,11,12,13,17,21,24,27];
+  const LUCKY_SLOTS=['오전 9~11시','오전 11~12시','오후 1~3시','오후 3~5시','오후 7~9시'];
+
+  const TPL = {
+    total:z=>[
+      `${z.name}의 핵심은 ${z.trait}. 오늘은 그 강점이 빛나는 날.`,
+      `당신의 페이스가 곧 리듬. ${z.name}다운 선택이 기회를 부릅니다.`,
+      `작게 시작해 크게 마무리. ${z.name}의 집중력이 성과를 만들어요.`
+    ],
+    love:['감정은 솔직하게, 표현은 부드럽게.','가벼운 칭찬 한 줄이 분위기를 바꿉니다.','연락 빈도를 오늘만 살짝 늘려보세요.'],
+    money:['소비보다 정리. 구독/결제를 점검해요.','작은 수익 포인트가 눈에 띄는 날.','지출엔 메모—내일의 아이디어가 됩니다.'],
+    health:['짧은 스트레칭 3세트가 컨디션을 살려요.','카페인/당분은 평소의 80%만.','10분 햇볕 쬐기—리듬을 맞춰줘요.'],
+    am:['메시지·메일 정리에 운이 실려요.','첫 1시간은 루틴만—리듬이 잡힙니다.','가벼운 산책 후 시작해 보세요.'],
+    pm:['오후엔 정리·정돈이 효율을 올립니다.','사람 만남에 복이 있어요—짧은 커피챗 추천.','퇴근 전 15분 회고가 내일을 바꿔요.'],
+    action:['연락을 미룬 한 사람에게 “안부 한 줄” 보내기.','오늘의 색이 보이는 물건 하나 두기.','앨범에서 사진 10장 정리.'],
+    avoid:['비교/비난 스크롤은 오늘만 차단.','즉흥적 큰지출, 보류.','한 번에 모든 걸 끝내려는 태도는 금물.']
+  };
+
+  let lastDob = '';
+
+  function render(dob){
+    const d = new Date(dob+'T00:00:00');
+    const z = findZ(d);
+
+    const dayKey = new Date().toISOString().slice(0,10);
+    const rng = prng(seedFrom(dob+'|'+dayKey));
+
+    // 총운
+    const total = pick(rng, TPL.total(z));
+    resultSummary.innerHTML = `
+      <div class="kicker">오늘의 별자리</div>
+      <div class="big-num">${z.name}</div>
+      <div class="note">${total}</div>
+    `;
+
+    // 미니 카테고리
+    miniCats.innerHTML = `
+      <li>❤️ 연애: ${pick(rng, TPL.love)}</li>
+      <li>💼 금전: ${pick(rng, TPL.money)}</li>
+      <li>🧘 건강: ${pick(rng, TPL.health)}</li>
+    `;
+
+    // 3요소 스프레드
+    const rngSeed = seedFrom(dob+'|'+dayKey);
+    spread3.dataset.seed = rngSeed;
+    const luckyColor = pick(rng, LUCKY_COLORS);
+    const luckyItem  = pick(rng, LUCKY_ITEMS);
+    const luckyNum   = pick(rng, LUCKY_NUMS);
+    const avoidTxt   = pick(rng, TPL.avoid);
+    const actionTxt  = pick(rng, TPL.action);
+    spread3.innerHTML = `
+      <li>🎁 <b>행운 아이템</b>: ${luckyItem}</li>
+      <li>🎨 <b>행운 컬러</b>: ${luckyColor} · <b>행운 숫자</b>: ${luckyNum}</li>
+      <li>🚫 <b>피해야 할 패턴</b>: ${avoidTxt}</li>
+      <li>✅ <b>행운 액션</b>: ${actionTxt}</li>
+    `;
+
+    dayPhases.innerHTML = `
+      <li>AM: ${pick(rng, TPL.am)}</li>
+      <li>PM: ${pick(rng, TPL.pm)}</li>
+      <li>🎯 행운 타임: ${pick(rng, LUCKY_SLOTS)}</li>
+    `;
+    oneMin.textContent = `오늘의 60초 루틴 — ${actionTxt}`;
+
+    // 외부 CTA
+    const hv = `https://m.search.naver.com/search.naver?query=${encodeURIComponent(z.name+' 운세')}`;
+    const lunar = `https://m.search.naver.com/search.naver?query=${encodeURIComponent(dob+' 음력 변환')}`;
+    const compat= `https://m.search.naver.com/search.naver?query=${encodeURIComponent(z.name+' 궁합 잘 맞는 별자리')}`;
+    linkRow.innerHTML = `
+      <a class="btn-info" href="${hv}" target="_blank" rel="noopener">오늘의 ${z.name} 운세 더 보기</a>
+      <a class="btn-info" href="${lunar}" target="_blank" rel="noopener">음력 생일 보러가기</a>
+      <a class="btn-info" href="${compat}" target="_blank" rel="noopener">잘 맞는 별자리 Top2</a>
+    `;
+
+    resultCard.classList.remove('hidden');
+    btnShare.hidden = false;
+    scrollToEl(resultCard);
+
+    // 재추첨
+    document.getElementById('rerollLucky').onclick = ()=>{
+      const r = prng((rngSeed|0) + Date.now()%100000);
+      spread3.innerHTML = `
+        <li>🎁 <b>행운 아이템</b>: ${pick(r, LUCKY_ITEMS)}</li>
+        <li>🎨 <b>행운 컬러</b>: ${pick(r, LUCKY_COLORS)} · <b>행운 숫자</b>: ${pick(r, LUCKY_NUMS)}</li>
+        <li>🚫 <b>피해야 할 패턴</b>: ${pick(r, TPL.avoid)}</li>
+        <li>✅ <b>행운 액션</b>: ${pick(r, TPL.action)}</li>
+      `;
+    };
+  }
+
+  function shareUrl(){
+    const origin = location.origin || (location.protocol + '//' + location.host);
+    return `${origin}/tools/horoscope/?mode=share&dob=${encodeURIComponent(lastDob)}`;
+  }
+  async function share(){
+    if(!lastDob) return;
+    const url = shareUrl();
+    try{
+      if (navigator.share){
+        await navigator.share({ title:'별자리 운세 - Toolmoa.kr', text:'오늘의 별자리 운세를 확인해 보세요!', url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert('공유 링크를 복사했어요.');
+      }
+    }catch(e){}
+  }
+
+  function run(){
+    if(!birthEl.value){ birthEl.focus(); return; }
+    lastDob = birthEl.value;
+    render(lastDob);
+  }
+
+  // 공유 모드
+  const params = new URLSearchParams(location.search);
+  const mode = params.get('mode');
+  const dobParam = params.get('dob') || params.get('date');
+  if (mode === 'share' && dobParam){
+    inputCard.classList.add('hidden');
+    lastDob = dobParam;
+    render(lastDob);
+  }
+
+  // 이벤트
+  checkBtn.addEventListener('click', run);
+  birthEl.addEventListener('keydown', e=>{ if(e.key==='Enter') run(); });
+  btnShare.addEventListener('click', share);
+  resetBtn.addEventListener('click', ()=>{
+    birthEl.value='';
+    resultCard.classList.add('hidden');
+    resultSummary.innerHTML = '';
+    miniCats.innerHTML = '';
+    spread3.innerHTML = '';
+    dayPhases.innerHTML = '';
+    oneMin.textContent = '';
+    linkRow.innerHTML = '';
+    btnShare.hidden = true;
+    scrollTop();
+  });
+
+  // 설명 강화
+  mountToolInfo('horoscope');
+</script>
+
+<script type="module">
+  import { renderCoupangBanner } from '/assets/js/ads-coupang.js';
+  const slot = document.getElementById('ad-coupang');
+  const tryAd = () => { 
+    if(!slot || slot.dataset.loaded) return;
+    renderCoupangBanner('#ad-coupang', { id: '909422', trackingCode: 'AF3778137', width:680, height:140 });
+    slot.dataset.loaded = '1';
+  };
+  const rc = document.getElementById('resultCard');
+  if (rc) {
+    const obs = new MutationObserver(() => {
+      if (!rc.classList.contains('hidden')) tryAd();
+    });
+    obs.observe(rc, { attributes:true, attributeFilter:['class'] });
+  } else {
+    // if there is no resultCard, just render immediately
+    tryAd();
+  }
+</script>
+<script src="/assets/js/ui-kit.js"></script>
+  
+</body>
+</html>

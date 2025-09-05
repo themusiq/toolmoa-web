@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>닉네임 생성기 | Toolmoa.kr</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+  :root{
+    --bg:#0b1020; --card:#12192b; --muted:#8ea2c6; --text:#eaf0ff;
+    --primary:#6b7bff; --primary-strong:#5564ff; --accent:#00d4ff; --danger:#ff7b7b;
+    --btn:#1a2340; --btn-border:#2a365e;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:ui-sans-serif,system-ui,AppleSDGothicNeo,'Pretendard',Segoe UI,Roboto,Helvetica,Arial;
+    background:linear-gradient(180deg,#0a0f1e 0%, #0b1020 100%);
+    color:var(--text);
+  }
+  header{
+    padding:20px 16px; display:flex; justify-content:center; align-items:center;
+  }
+  header a{
+    color:#fff; text-decoration:none; font-weight:800; font-size:22px; letter-spacing:.3px;
+  }
+  .wrap{
+    max-width:1180px; margin:24px auto; padding:0 16px;
+    display:grid; grid-template-columns: 340px 1fr 300px; gap:16px;
+  }
+  @media(max-width:1024px){ .wrap{grid-template-columns:1fr} }
+  .card{
+    background:var(--card); border:1px solid #1f2947; border-radius:var(--radius);
+    box-shadow:0 10px 30px rgba(0,0,0,.25); padding:18px;
+  }
+  .title{font-weight:800; font-size:18px; margin:0 0 12px}
+
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+  select,input[type="text"]{
+    width:100%; padding:11px 12px; background:#0f1528; border:1px solid var(--btn-border);
+    border-radius:10px; color:var(--text); outline:none;
+  }
+  .hint{color:var(--muted); font-size:12px; margin-top:6px}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 14px; border-radius:12px; border:1px solid var(--btn-border);
+    background:var(--btn); color:#fff; cursor:pointer; font-weight:700;
+    transition:.15s transform, .15s background;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn.primary{background:var(--primary); border-color:transparent}
+  .btn.primary:hover{background:var(--primary-strong)}
+  .btn.accent{background:#12233f; border-color:#2a3f6f; color:#bfe3ff}
+  .btn.ghost{background:#0f162b}
+  .btn.danger{background:var(--danger); border-color:transparent}
+
+  .btns{display:flex; gap:10px; flex-wrap:wrap}
+  .pill{display:inline-flex; padding:4px 10px; background:#0d1733; color:#b7c6eb; border-radius:999px; border:1px solid #22305d; font-size:12px}
+
+  .result-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 12px; border:1px solid #22305d; border-radius:12px; background:#0f162b;
+  }
+  .nick{font-weight:800; letter-spacing:.2px}
+  .score{font-size:12px; color:#9db2d9}
+  .list{display:grid; gap:10px}
+  .aside-list{display:grid; gap:10px; max-height:520px; overflow:auto; padding-right:4px}
+  .muted{color:var(--muted); font-size:12px}
+
+  footer{padding:40px 0; text-align:center; color:#9db2d9}
+</style>
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <script defer src="/assets/js/ui-kit.js"></script>
+</head>
+
+  
+<body>
+
+  <script src="/assets/js/theme.js"></script>
+<script src="/assets/js/auto-wire.js"></script>
+<header>
+  <a href="/">🧰 Toolmoa.kr</a>
+</header>
+
+<div class="wrap">
+
+  <!-- 옵션 -->
+  <section class="card">
+    <h2 class="title">옵션</h2>
+    <div class="row">
+      <div>
+        <div class="muted">언어</div>
+        <select id="lang">
+          <option value="ko">한국어</option>
+          <option value="en">영어</option>
+        </select>
+      </div>
+      <div>
+        <div class="muted">최대 글자수</div>
+        <select id="maxLen">
+          <option>8</option><option selected>10</option><option>12</option><option>14</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="height:10px"></div>
+
+    <div class="row">
+      <div>
+        <div class="muted">취향(테마)</div>
+        <select id="taste">
+          <option value="">무작위(추천)</option>
+          <option value="korean">한국적인</option>
+          <option value="funny">웃긴/가벼운</option>
+          <option value="feminine">여성적인</option>
+          <option value="masculine">남성적인</option>
+          <option value="parody">패러디/레트로</option>
+          <option value="political">정치적</option>
+          <option value="tech">테크/개발</option>
+        </select>
+      </div>
+      <div>
+        <div class="muted">필수 포함 키워드</div>
+        <input id="must" type="text" placeholder="예: nova, 고래, love (선택)">
+      </div>
+    </div>
+
+    <div class="hint">설정이 비어있어도 무작위로 ‘쓸만한’ 후보 10개를 생성합니다. (중복 제거/길이/키워드 필터)</div>
+
+    <div style="height:12px"></div>
+
+    <div class="btns">
+      <button id="btnGen" class="btn primary">닉네임 생성</button>
+      <button id="btnRe" class="btn ghost">다시 생성</button>
+      <button id="btnHome" class="btn accent" onclick="location.href='/'">홈으로</button>
+      <button id="btnShare" class="btn accent">공유하기</button>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <section class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h2 class="title">결과(최대 10개) <span id="count" class="pill">0개</span></h2>
+      <div class="muted">품질: 중복 회피 · 길이/키워드 필터 · 가중 랜덤</div>
+    </div>
+    <div id="list" class="list"></div>
+  </section>
+
+  <!-- 랭킹/스폰서 -->
+  <aside class="card">
+    <h2 class="title">오늘의 랭킹 🔥</h2>
+    <div id="rank" class="aside-list"></div>
+    <div style="height:14px"></div>
+    <h2 class="title">스폰서</h2>
+    <div class="muted">대시보드/결과 하단 쿠팡 배너가 여기에 1개만 고정되도록 설정해두세요.</div>
+  </aside>
+
+</div>
+
+<!-- 중략: 기존 상단/옵션/결과 영역은 유지 -->
+
+<section class="section">
+  <h2 class="badge">사용 설명</h2>
+  <div class="card" style="color:var(--muted);line-height:1.7">
+    <p>테마(템플릿)를 고르면 해당 템플릿의 단어풀에서 생성합니다. 
+    언어/취향/최대 글자수/키워드로 세부 조정이 가능하며, 설정이 없으면 무작위로 10개 생성합니다.</p>
+    <p>각 닉네임의 ‘개성 지수(%)’는 내부 해시 기반으로 계산되며 매번 크게 흔들리지 않습니다. 
+    <strong>오늘의 랭킹</strong>은 당일 기준(개인 로컬 기준) 복사/공유 횟수가 많은 닉네임 순입니다.</p>
+    <p>‘형용사 + 명사’ 조합 / ‘무작위 조합’ 두 모드를 제공하며, 
+    모드 전환에 따라 문체와 어감이 달라집니다. 복사 버튼으로 빠르게 붙여 넣을 수 있습니다.</p>
+  </div>
+</section>
+<div id="ad-area"><div id="coupang-slot"></div></div>
+<script src="/assets/js/ads-coupang.js" defer></script>
+
+  
+<footer>© 2025 Toolmoa.kr</footer>
+
+<script>
+/** ---------- 데이터 로드 (통합 → 분할 순으로 시도) ---------- */
+async function loadWords(){
+  // 1) 통합 파일 우선
+  const try1 = await fetch('/data/nickname_words.json').then(r=>r.ok?r.json():null).catch(_=>null);
+  if(try1) return try1;
+
+  // 2) 분할 저장을 쓰는 경우 (원하실 때)
+  const endpoints = [
+    ['/data/nickname/adjectives.ko.json','/data/nickname/nouns.ko.json','/data/nickname/adjectives.en.json','/data/nickname/nouns.en.json','/data/nickname/suffixes.json','/data/nickname/templates.json']
+  ].flat();
+
+  try{
+    const r = await Promise.all(endpoints.map(u=>fetch(u).then(x=>x.ok?x.json():null)));
+    const data = {templates:r[5]||["{adj}{noun}"], suffixes:{ko:(r[4]?.ko)||[], en:(r[4]?.en)||[]}, adjectives:{ko:{default:r[0]||[]}, en:{default:r[2]||[]}}, nouns:{ko:{default:r[1]||[]}, en:{default:r[3]||[]}} };
+    return data;
+  }catch(e){ return null }
+}
+
+const state = {
+  words: null,
+  rank: []
+};
+
+/** ---------- 유틸 ---------- */
+const rand = (arr)=>arr[Math.floor(Math.random()*arr.length)];
+const shuffle = (a)=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/** 취향(테마)에 맞는 후보풀 만들기: 해당 테마 없으면 default 사용 */
+function poolByTaste(dict, lang, taste){
+  const d = dict?.[lang]||{};
+  if(!taste) return d.default||[];
+  return d[taste] && d[taste].length ? d[taste] : (d.default||[]);
+}
+
+/** 점수(특이함/창의/임팩트) 임의 가중치 */
+function scoreNick(n){
+  let uniq = new Set(n).size / n.length; // 문자 다양도
+  let hasNum = /\d/.test(n) ? .1 : 0;
+  let dash = /[-_]/.test(n) ? .05 : 0;
+  return Math.round((uniq + hasNum + dash) * 100)/100;
+}
+
+/** 중복회피 + 길이/키워드 필터 + 가중랜덤 템플릿 */
+function* nicknameGenerator(opts){
+  const {lang,taste,maxLen,must,words} = opts;
+  const adjectives = poolByTaste(words.adjectives, lang, taste);
+  const nouns = poolByTaste(words.nouns, lang, taste);
+  const suffixes = words.suffixes?.[lang]||[];
+  const templates = words.templates?.length ? words.templates : ["{adj}{noun}"];
+
+  // 방어: 풀 부족 시 기본값
+  const adj = adjectives.length?adjectives:["witty","neo","retro","soft"];
+  const nou = nouns.length?nouns:["tiger","fox","pixel","studio"];
+
+  const seen = new Set();
+  let safety=0;
+
+  while(safety<5000){
+    safety++;
+
+    const t = rand(templates);
+    const nick = t
+      .replaceAll("{adj}", rand(adj))
+      .replaceAll("{noun}", rand(nou))
+      .replaceAll("{suffix}", rand(suffixes.concat(["","", ""])) ); // suffix는 낮은 확률
+
+    // 공백 제거 & 크기 정리
+    const clean = nick.replace(/\s+/g,'').replace(/--+|__+/g,'-');
+
+    if(seen.has(clean)) continue;
+    if(clean.length > maxLen) continue;
+    if(must && !clean.toLowerCase().includes(must.toLowerCase())) continue;
+
+    seen.add(clean);
+    yield clean;
+  }
+}
+
+/** ---------- UI 바인딩 ---------- */
+const $ = (s)=>document.querySelector(s);
+const listEl = $("#list");
+const countEl = $("#count");
+const rankEl = $("#rank");
+
+function renderList(items){
+  listEl.innerHTML = items.map(n=>{
+    const s = scoreNick(n);
+    return `<div class="result-item">
+      <div>
+        <div class="nick">${n}</div>
+        <div class="score">특이함 지수 ${Math.round(s*100)}%</div>
+      </div>
+      <div class="btns">
+        <button class="btn ghost" onclick="copyNick('${n}')">복사</button>
+        <button class="btn accent" onclick="shareNick('${n}')">공유</button>
+      </div>
+    </div>`
+  }).join('');
+  countEl.textContent = items.length+"개";
+}
+
+function renderRank(){
+  if(!state.rank.length){
+    // 더미(오늘의 랭킹) — 실제로는 로컬 저장/조회수 기반으로 업데이트 가능
+    state.rank = ["한결드래곤","픽셀한결","draco농부","라이트농부","버서커스튜디오","nova장인","royalworks"];
+  }
+  rankEl.innerHTML = state.rank.slice(0,10).map(n=>`
+    <div class="result-item">
+      <div class="nick">${n}</div>
+      <button class="btn ghost" onclick="copyNick('${n}')">복사</button>
+    </div>
+  `).join('');
+}
+
+async function generate(reRoll=false){
+  const lang = $("#lang").value;
+  const taste = $("#taste").value;
+  const maxLen = parseInt($("#maxLen").value,10);
+  const must = ($("#must").value||"").trim();
+
+  if(!state.words){
+    state.words = await loadWords();
+    if(!state.words){
+      alert("단어 데이터(nickname_words.json)를 찾지 못했습니다. /data 폴더에 업로드 해주세요.");
+      return;
+    }
+  }
+
+  const gen = nicknameGenerator({lang,taste,maxLen,must,words:state.words});
+  const out = [];
+  for(let i=0;i<10;i++){
+    const v = gen.next();
+    if(v.done) break;
+    out.push(v.value);
+  }
+  // 후보 10개 보장 시도(풀 부족하면 10개 미만일 수도 있음)
+  while(out.length<10){
+    const v = gen.next();
+    if(v.done) break;
+    out.push(v.value);
+  }
+  renderList(out);
+}
+
+function copyNick(n){
+  navigator.clipboard.writeText(n).then(()=>alert("복사 완료"));
+}
+function shareNick(n){
+  const text = `내 닉네임 후보: ${n}\n만들기: https://toolmoa.kr/tools/nickname/`;
+  if(navigator.share){ navigator.share({title:"닉네임 생성기", text, url:location.href}); }
+  else { navigator.clipboard.writeText(text).then(()=>alert("공유 텍스트를 복사했어요.")); }
+}
+
+$("#btnGen").addEventListener("click", ()=>generate(false));
+$("#btnRe").addEventListener("click", ()=>generate(true));
+$("#btnShare").addEventListener("click", ()=>{
+  const picked = listEl.querySelector(".nick")?.textContent || "(후보 없음)";
+  shareNick(picked);
+});
+
+renderRank();
+generate();
+</script>
+<script src="/assets/js/ui-kit.js"></script>
+
+  
+</body>
+</html>

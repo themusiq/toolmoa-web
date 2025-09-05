@@ -1,0 +1,191 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>이름 궁합 계산기 | Toolmoa.kr</title>
+<meta property="og:title" content="이름 궁합 계산기 | Toolmoa.kr">
+<meta property="og:description" content="두 사람의 이름으로 궁합 점수(%)와 추천 액션을 간단히 알려드립니다.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/assets/css/base.css">
+<link rel="stylesheet" href="/assets/css/tool-info.css">
+  <script defer src="/assets/js/ui-kit.js"></script>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8660767493820036" crossorigin="anonymous"></script>
+
+</head>
+  
+  <body>
+    <script src="/assets/js/theme.js"></script>
+<script src="/assets/js/auto-wire.js"></script>
+<header class="site-header"><div class="brand"><span class="emoji">🧰</span> Toolmoa.kr</div></header>
+
+<main class="container">
+  <section class="hero">
+    <div class="h-title">💞 이름 궁합 계산기</div>
+    <p class="muted">두 사람의 이름을 입력하면 <b>궁합 점수</b>와 <b>추천 액션</b>을 카드로 보여드려요. (엔터테인먼트용)</p>
+  </section>
+
+  <!-- 입력 -->
+  <section class="card" id="inputCard">
+    <div class="h-sub">✍️ 이름 입력</div>
+    <div class="row" style="margin-top:8px; gap:8px; flex-wrap:wrap">
+      <input id="nameA" class="input" placeholder="이름 A(나)" maxlength="20">
+      <input id="nameB" class="input" placeholder="이름 B(상대)" maxlength="20">
+      <button id="checkBtn" class="btn-primary btn-banner" type="button">확인</button>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <div id="ad-coupang" style="margin-top:16px"></div>
+
+  <section id="resultCard" class="card hidden">
+    <div class="h-sub">🔎 궁합 결과</div>
+    <div class="result-highlight" id="summary"></div>
+    <ul class="bullet" id="tips" style="margin-top:8px"></ul>
+
+    <div class="h-sub" style="margin-top:12px">🔍 더 알아보기</div>
+    <div id="links" class="link-banner-row"></div>
+
+    <div class="cta-row" style="margin-top:16px">
+      <button id="btnShare" class="btn btn-banner" type="button" hidden>공유하기</button>
+      <button id="resetBtn" class="btn-primary btn-banner" type="button">다시 하기</button>
+      <a class="btn-primary btn-banner" href="/">홈으로</a>
+    </div>
+  </section>
+
+  <!-- 설명 강화 -->
+  <section id="tool-info"></section>
+</main>
+
+<footer class="site-footer"><div class="footer-inner">
+  <div class="footer-logo">🛠 Toolmoa.kr</div>
+  <p class="footer-copy">© <span id="cpyYear"></span> Toolmoa.kr. All rights reserved.</p>
+</div></footer>
+<script>document.getElementById('cpyYear').textContent=new Date().getFullYear()</script>
+
+<script type="module">
+  import { scrollToEl } from '/assets/js/toolmoa-common.js'
+  import { mountToolInfo } from '/assets/js/tool-info.js'
+
+  const aEl = document.getElementById('nameA')
+  const bEl = document.getElementById('nameB')
+  const btn = document.getElementById('checkBtn')
+  const btnShare = document.getElementById('btnShare')
+  const btnReset = document.getElementById('resetBtn')
+
+  const inputCard = document.getElementById('inputCard')
+  const resultCard = document.getElementById('resultCard')
+  const summary = document.getElementById('summary')
+  const tips = document.getElementById('tips')
+  const links = document.getElementById('links')
+
+  let last = {a:'', b:'', score:0}
+
+  // 간단한 점수 알고리즘 (문자 코드 포인트 합 → 0~100)
+  function scoreByNames(a,b){
+    const s = str => Array.from(str.trim()).reduce((t,ch)=> t + ch.codePointAt(0), 0)
+    return (s(a)+s(b)) % 101
+  }
+
+  function resultText(score){
+    if(score>=86) return '케미 폭발! 대담하게 다음 단계를 준비해 보세요.'
+    if(score>=70) return '안정적인 궁합. 대화의 빈도를 조금만 더 늘려 보세요.'
+    if(score>=50) return '기대 여지 충분! 작은 공통 관심사를 키워 보세요.'
+    if(score>=30) return '아직 탐색기. 가벼운 대화 주제로 라포부터.'
+    return '관찰 모드 권장. 천천히 거리감 조절이 필요해요.'
+  }
+  function actionTip(score){
+    const arr = [
+      '하루에 한 번 “안부 한 줄” 보내기',
+      '상대의 최근 관심사 질문 1개',
+      '공통 취향(음식/음악) 공유하기',
+      '주말 가벼운 산책·카페 약속 제안',
+      '답장 속도 맞추기(읽씹 줄이기)'
+    ]
+    if(score>=86) return '당신의 타이밍! 오늘은 ' + arr[3]
+    if(score>=70) return '유지력이 승부! 오늘은 ' + arr[0]
+    if(score>=50) return '호감 신호 쌓기! 오늘은 ' + arr[2]
+    if(score>=30) return '라포 만들기! 오늘은 ' + arr[1]
+    return '무리 금물! 오늘은 ' + arr[4]
+  }
+  const pair = (a,b)=> `<b>${a}</b> × <b>${b}</b>`
+
+  function run(){
+    const a = aEl.value.trim()
+    const b = bEl.value.trim()
+    if(!a || !b){ alert('두 사람의 이름을 입력해 주세요.'); return }
+    const score = scoreByNames(a,b)
+    last = {a,b,score}
+
+    summary.innerHTML = `
+      <div class="kicker">${pair(a,b)}</div>
+      <div class="big-num">${score}%</div>
+      <div class="note">${resultText(score)}</div>
+    `
+    tips.innerHTML = `
+      <li>오늘의 추천 액션: <b>${actionTip(score)}</b></li>
+      <li>대화 소재: 최근 본 콘텐츠, 맛집, 여행</li>
+    `
+    const naver = 'https://m.search.naver.com/search.naver?query=' + encodeURIComponent(`${b} 호감 신호`)
+    links.innerHTML = `<a class="btn-info" href="${naver}" target="_blank" rel="noopener">호감 신호 더 알아보기</a>`
+
+    resultCard.classList.remove('hidden')
+    btnShare.hidden = false
+    scrollToEl(resultCard)
+
+    history.replaceState({}, '', shareUrl())
+  }
+
+  function shareUrl(){
+    const u = new URL(location.href)
+    u.searchParams.set('mode','share')
+    u.searchParams.set('a', last.a)
+    u.searchParams.set('b', last.b)
+    return u.toString()
+  }
+  async function share(){
+    try{
+      const url = shareUrl()
+      if(navigator.share) await navigator.share({title:'이름 궁합 계산기', text:`${last.a}×${last.b} 궁합 결과`, url})
+      else { await navigator.clipboard.writeText(url); alert('공유 링크를 복사했어요.') }
+    }catch(e){}
+  }
+
+  // 공유 링크 랜딩
+  ;(()=>{
+    const sp=new URLSearchParams(location.search)
+    if(sp.get('mode')!=='share') return
+    const a = sp.get('a')||'', b = sp.get('b')||''
+    if(a && b){ aEl.value=a; bEl.value=b; run(); inputCard.classList.add('hidden') }
+  })()
+
+  btn.addEventListener('click', run)
+  ;[aEl,bEl].forEach(el=>el.addEventListener('keydown',e=>{ if(e.key==='Enter') run() }))
+  btnShare.addEventListener('click', share)
+  btnReset.addEventListener('click', ()=>{ location.href = location.pathname })
+
+  // 설명 강화
+  mountToolInfo('name-match')
+</script>
+
+<script type="module">
+  import { renderCoupangBanner } from '/assets/js/ads-coupang.js';
+  const slot = document.getElementById('ad-coupang');
+  const tryAd = () => { 
+    if(!slot || slot.dataset.loaded) return;
+    renderCoupangBanner('#ad-coupang', { id: '909422', trackingCode: 'AF3778137', width:680, height:140 });
+    slot.dataset.loaded = '1';
+  };
+  const rc = document.getElementById('resultCard');
+  if (rc) {
+    const obs = new MutationObserver(() => {
+      if (!rc.classList.contains('hidden')) tryAd();
+    });
+    obs.observe(rc, { attributes:true, attributeFilter:['class'] });
+  } else {
+    // if there is no resultCard, just render immediately
+    tryAd();
+  }
+</script>
+<script src="/assets/js/ui-kit.js"></script>
+  
+
+</body></html>

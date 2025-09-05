@@ -1,0 +1,94 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>만나이 계산기 | Toolmoa</title>
+<link rel="stylesheet" href="/assets/css/base.css"/>
+<script defer src="/assets/js/ui-kit.js"></script>
+</head>
+  
+  
+  
+  <body>
+    
+<script src="/assets/js/theme.js"></script>
+<script src="/assets/js/auto-wire.js"></script>
+
+<header class="container" style="display:flex;justify-content:space-between;align-items:center">
+  <a href="/" class="badge">🧰 Toolmoa.kr</a>
+  <button id="themeToggle" class="btn btn-ghost">다크모드</button>
+</header>
+
+<main class="container" style="display:flex;flex-direction:column;gap:18px">
+  <section class="section">
+    <h1>🎂 만나이 계산기</h1>
+    <div class="card" style="display:flex;gap:10px;align-items:center">
+      <input id="birth" type="date" class="btn-ghost" style="height:40px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text)"/>
+      <button id="calc" class="btn btn-primary">계산하기</button>
+    </div>
+  </section>
+
+  <section id="resultWrap" class="section" style="display:none">
+    <div class="card">
+      <h2 class="badge">날짜 정보</h2>
+      <div id="ageLines" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="badge">추가 정보</h2>
+      <ul id="extra" style="margin-top:8px;color:var(--muted)"></ul>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <a class="btn btn-soft" href="/tools/star/">오늘의 별자리 운세 더 보기</a>
+        <a class="btn btn-soft" href="https://search.naver.com/search.naver?query=%EC%9D%8C%EB%A0%A5%20%EC%83%9D%EC%9D%BC" target="_blank">음력 생일 보러가기</a>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="retry" class="btn">다시 하기</button>
+        <a href="/" class="btn btn-ghost">홈으로</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="ad-area"><div id="coupang-slot"></div></div>
+</main>
+
+<script src="/assets/js/theme.js" defer></script>
+<script>
+function format(n){return n.toLocaleString('ko-KR')}
+document.getElementById('calc').addEventListener('click', ()=>{
+  const v = document.getElementById('birth').value;
+  if(!v) return alert('생일을 선택해 주세요.');
+  const b = new Date(v+'T00:00:00');
+  const now = new Date();
+  // 만나이
+  let age = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+  // 살아온 일수
+  const lived = Math.floor((now - b) / 86400000);
+  // 다음 생일까지
+  const next = new Date(now.getFullYear(), b.getMonth(), b.getDate());
+  if(next < now) next.setFullYear(now.getFullYear()+1);
+  const leftDays = Math.ceil((next - now) / 86400000);
+
+  const lines = `
+    <p>오늘 기준 <strong>만 ${age}세</strong></p>
+    <p>지금까지 살아온 일수는 <strong>${format(lived)}</strong>일</p>
+    <p>다음 생일까지 <strong>${format(leftDays)}</strong>일 남았어요.</p>
+  `;
+  document.getElementById('ageLines').innerHTML = lines;
+
+  const extra = `
+    <li>현재 <strong>${age}세</strong>입니다. → 관련  건강/재무 팁 살펴보기 권장</li>
+    <li>올해 남은 날: <strong>${format( Math.ceil( (new Date(now.getFullYear(),11,31) - now) / 86400000) )}</strong>일</li>
+  `;
+  document.getElementById('extra').innerHTML = extra;
+
+  document.getElementById('resultWrap').style.display = '';
+});
+document.getElementById('retry').addEventListener('click', ()=>{
+  document.getElementById('birth').value = '';
+  document.getElementById('resultWrap').style.display = 'none';
+});
+</script>
+<script src="/assets/js/ads-coupang.js" defer></script>
+
+  <script src="/assets/js/ui-kit.js"></script>
+  </body></html>
