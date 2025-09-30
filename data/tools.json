@@ -1,9 +1,0 @@
-[
-  {"id":"age-calculator","name":"만나이 계산기","desc":"만나이·남은 날·살아온 일수","icon":"🎂","href":"/tools/age-calculator/"},
-  {"id":"nickname","name":"닉네임 생성기","desc":"문서/테마로 한 번에 10개","icon":"✍️","href":"/tools/nickname/"},
-  {"id":"palm-reading","name":"팔자손금 진단기","desc":"선택형/업로드형·간단 진단","icon":"🖐️","href":"/tools/palm-reading/"},
-  {"id":"star-fortune","name":"별자리 운세","desc":"오늘의 한줄 운세","icon":"🔮","href":"/tools/horoscope/"},
-  {"id":"salary-net","name":"월급 실수령액","desc":"세금·4대보험 공제 후","icon":"💰","href":"/tools/salary-calculator/"},
-  {"id":"loan-calc","name":"대출 상환 계산기","desc":"원리금균등·원금균등","icon":"🏦","href":"/tools/loan-payment/"},
-  {"id":"love-chance","name":"썸/연애 확률","desc":"6문항으로 보는 오늘의 확률","icon":"💘","href":"/tools/crush-chance/"}
-]

@@ -1,8 +1,0 @@
-{
-  "none": {"label":"무작위(추천)","weights":{"A+N":5,"V+N":2,"N+N":1},"emoji":""},
-  "kawaii": {"label":"귀여움","weights":{"A+N":8,"N+N":2},"emoji":"💖"},
-  "edgy":   {"label":"센/중2","weights":{"N+N":6,"A+N":4},"emoji":"⚡"},
-  "simple": {"label":"심플","weights":{"N":10},"emoji":"📌"},
-  "unique": {"label":"유니크","weights":{"V+N":6,"A+N":4},"emoji":"🎨"},
-  "tech":   {"label":"테크개발","weights":{"N+N":6,"A+N":4},"emoji":"💻"}
-}
