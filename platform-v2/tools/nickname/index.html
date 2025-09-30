@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI 닉네임 생성기 | 게임, 커뮤니티, SNS 닉네임 추천 - Toolmoa.kr</title>
+  <meta name="description" content="AI 기반 닉네임 생성기로 게임, 커뮤니티, SNS에서 사용할 수 있는 멋진 닉네임을 쉽고 빠르게 추천받으세요. 다양한 옵션과 테마, 키워드로 나만의 닉네임을 만들어보세요.">
+  <link rel="stylesheet" href="/assets/css/base.css" />
+  <style>
+    body { background:#0b1220; color:#e6ecff; font-family:system-ui,Segoe UI,Apple SD Gothic Neo,Malgun Gothic,Arial,sans-serif; }
+    .container { max-width: 1200px; margin: 32px auto; padding: 0 16px; }
+    .card { background:#0f172a; border:1px solid #1e293b; border-radius:12px; padding:20px; }
+    .muted { color:#94a3b8; }
+    .btn { padding:10px 18px; border-radius:8px; background:#4f46e5; color:#fff; border:none; cursor:pointer; font-size:1rem; }
+    .btn:active { background:#3730a3; }
+    .grid-3col {
+      display: grid;
+      grid-template-columns: 320px 1fr 320px;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    @media (max-width: 900px) {
+      .grid-3col { grid-template-columns: 1fr; }
+    }
+    .meta-row { display:flex; gap:10px; align-items:center; }
+    label { font-weight:600; margin-top:12px; display:block; }
+    select, input { width:100%; margin-top:6px; padding:8px; border-radius:6px; border:1px solid #334155; background:#1e293b; color:#e6ecff; }
+    aside h3 { margin-top:0; }
+    /* 추가된 스타일 */
+    .list-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .name {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .meta {
+      font-size: 0.875rem;
+      margin-top: 4px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn.secondary {
+      background: #334155;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 닉네임 생성기 타이틀/설명 카드 -->
+    <section class="card tool-header" style="margin-bottom:24px;">
+      <h1 class="tool-title">AI 닉네임 생성기</h1>
+      <p class="tool-desc">
+        멋지고 독창적인 닉네임을 AI가 추천해줍니다.<br>
+        원하는 언어, 글자수, 테마, 키워드를 선택해보세요.
+      </p>
+    </section>
+
+    <div class="card grid-3col">
+      <!-- 좌측: 옵션 -->
+      <aside>
+        <h2>옵션 선택</h2>
+        <form id="nickname-form" autocomplete="off">
+          <label for="lang">언어</label>
+          <select id="lang" class="input">
+            <option value="ko">한국어</option>
+          </select>
+
+          <label for="count">최대 글자수</label>
+          <select id="count" class="input">
+            <option>10</option><option>8</option><option>6</option><option>4</option>
+          </select>
+
+          <label for="theme">테마(취향)</label>
+          <select id="theme" class="input">
+            <option value="any">무작위(추천)</option>
+            <option value="korean">한국적인</option>
+            <option value="feminine">여성적인</option>
+            <option value="masculine">남성적인</option>
+            <option value="funny">재미있는</option>
+            <option value="tech">테크/개발</option>
+            <option value="political">정치적인</option>
+            <option value="genz">젠지스타일</option>
+          </select>
+
+          <label for="seed">필수 키워드 (쉼표로 구분)</label>
+          <input id="seed" class="input" placeholder="예: nova, 고양, love" />
+
+          <div style="height:16px"></div>
+          <div style="display:flex; gap:8px;">
+            <button id="gen" class="btn" type="submit" style="flex:1; font-weight:700;">닉네임 생성</button>
+            <a href="/platform-v2/index.html" class="btn" style="flex:1; font-weight:700; background:#334155; color:#fff; display:flex; align-items:center; justify-content:center; text-decoration:none;">홈으로</a>
+          </div>
+        </form>
+        <div style="height:16px"></div>
+        <button id="share" class="btn" style="width:100%; background:#1e40af">공유하기</button>
+        <div style="height:12px"></div>
+        <div class="muted" style="font-size:12px">
+          ※ 옵션을 조정해 다양한 스타일의 닉네임을 시도해보세요.<br>
+          ※ 공유 시 현재 옵션이 링크에 함께 담깁니다.
+        </div>
+      </aside>
+
+      <!-- 중앙: 결과 -->
+      <main>
+        <div class="meta-row">
+          <h2 style="margin:0">추천 닉네임 결과</h2>
+        </div>
+        <div id="list-wrap" style="margin-top:12px">
+          <p class="muted">옵션을 설정하고 <b>[닉네임 생성]</b>을 눌러주세요.</p>
+        </div>
+        <section style="margin-top:24px;">
+          <h3>닉네임 선택 가이드</h3>
+          <ul class="muted">
+            <li>발음이 쉽고 기억하기 좋은 닉네임을 선택하세요.</li>
+            <li>플랫폼(게임/인스타그램/TikTok 등)에 어울리는지 확인하세요.</li>
+            <li>중복 여부를 각 플랫폼에서 꼭 확인하세요.</li>
+            <li>마음에 드는 닉네임은 복사 버튼으로 쉽게 복사할 수 있습니다.</li>
+          </ul>
+        </section>
+      </main>
+
+      <!-- 우측: 랭킹/스폰서 -->
+      <aside>
+        <div>
+          <h2>오늘의 인기 닉네임</h2>
+          <div id="ranking"></div>
+        </div>
+        <div style="height:16px"></div>
+        <div>
+          <h3>스폰서</h3>
+          <p class="muted">대시보드/결과 하단 쿠팡 배너가 여기에 1개만 고정되도록 설계해주세요.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script type="module" src="./page.js"></script>
+</body>
+</html>
